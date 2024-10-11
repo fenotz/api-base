@@ -1,6 +1,7 @@
 <?php
 namespace Fenox\ApiBase;
 
+use Fenox\ApiBase\Console\MakeApiModel;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
@@ -12,6 +13,12 @@ class BaseApiServiceProvider extends ServiceProvider
 {
     public function boot()
     {
+
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                MakeApiModel::class,
+            ]);
+        }
         // Registrar el middleware de JSON
         $this->app['router']->aliasMiddleware('force.json', \Fenox\ApiBase\Middleware\ForceJsonResponse::class);
 
