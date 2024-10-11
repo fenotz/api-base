@@ -18,5 +18,10 @@
         "Fenox\\ApiBase\\BaseApiServiceProvider"
       ]
     }
+  },
+  "scripts": {
+    "post-install-cmd": [
+      "@php artisan install:api"
+    ]
   }
 }
