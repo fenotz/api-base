@@ -1,0 +1,20 @@
+{
+  "name": "fenox/api-base",
+  "description": "Paquete para manejar base de APIs en Laravel",
+  "autoload": {
+    "psr-4": {
+      "Fenox\\ApiBase\\": "src/"
+    }
+  },
+  "require": {
+    "php": "^8.3",
+    "laravel/framework": "^11.0"
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Fenox\\ApiBase\\BaseApiServiceProvider"
+      ]
+    }
+  }
+}
