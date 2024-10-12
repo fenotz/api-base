@@ -1,17 +1,19 @@
 <?php
+
 namespace Fenox\ApiBase;
 
 use Fenox\ApiBase\Console\MakeApiModel;
 use Fenox\ApiBase\Middleware\ForceJsonResponse;
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Http\Request;
 use Throwable;
 use Illuminate\Database\QueryException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Illuminate\Foundation\Configuration\Exceptions;
+
 
 class BaseApiServiceProvider extends ServiceProvider
 {
@@ -28,54 +30,51 @@ class BaseApiServiceProvider extends ServiceProvider
         $kernel->pushMiddleware(ForceJsonResponse::class);
 
         // Registrar el manejo de excepciones para respuestas JSON
-        $this->app->afterResolving(
-            Exceptions::class,
-            function ($exceptions) {
-                $exceptions->render(function (Throwable $e, Request $request) {
-                    // Manejar excepciones y forzar respuestas en JSON
-                    if ($e instanceof QueryException && $e->getCode() === '42S02') {
-                        return response()->json([
-                            'message' => 'The requested table or view does not exist in the database. Run php artisan:migrate?',
-                        ], 500);
-                    }
+        // $this->app->singleton(
+        //    \Illuminate\Contracts\Debug\ExceptionHandler::class,
+        //    \App\Exceptions\Handler::class
+        // );
+        $this->registerExceptionHandler();
+    }
 
-                    if ($e instanceof QueryException && $e->getCode() === 'HY000') {
-                        return response()->json([
-                            'message' => 'A required field is missing or has no default value. (Check your Request Rules)',
-                        ], 422);
-                    }
-
-                    if ($e instanceof ValidationException) {
-                        return response()->json([
-                            'status' => 'error',
-                            'message' => 'Validation failed',
-                            'errors' => $e->errors(),
-                        ], 422);
-                    }
-
-                    if ($e instanceof AuthenticationException) {
-                        return response()->json([
-                            'message' => 'Unauthenticated',
-                        ], 401);
-                    }
-
-                    if ($e instanceof NotFoundHttpException) {
-                        return response()->json([
-                            'message' => 'Route not found',
-                        ], 404);
-                    }
-
-                    if ($e instanceof QueryException && $e->errorInfo[1] == 1062) {
-                        return response()->json([
-                            'message' => 'The field has already been taken.',
-                        ], 422);
-                    }
-
-                    return response()->json([
-                        'message' => $e->getMessage(),
-                    ], $e->getCode() ?: 500);
-                });
+    protected function registerExceptionHandler(): void
+    {
+        //dd("hola");
+        $this->app->make('Illuminate\Contracts\Debug\ExceptionHandler')->renderable(function (Throwable $e, Request $request) {
+            if ($e instanceof \Illuminate\Auth\AuthenticationException) {
+                return response()->json(['message' => 'Unauthenticated'], 401);
             }
-        );
+
+            if ($e instanceof \Illuminate\Auth\Access\AuthorizationException) {
+                return response()->json(['message' => 'Forbidden'], 403);
+            }
+
+            if ($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
+                return response()->json(['message' => 'Route not found'], 404);
+            }
+
+            if ($e instanceof \Illuminate\Validation\ValidationException) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors(),
+                ], 422);
+            }
+
+            if ($e instanceof \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException) {
+                return response()->json(['message' => 'Method not allowed'], 405);
+            }
+
+            if ($e instanceof \Illuminate\Http\Exceptions\ThrottleRequestsException) {
+                return response()->json(['message' => 'Too many requests'], 429);
+            }
+
+            if ($e instanceof \Symfony\Component\HttpKernel\Exception\BadRequestHttpException) {
+                return response()->json(['message' => 'Bad request'], 400);
+            }
+
+            // Fallback para otros errores
+            return response()->json(['message' => 'Server Error'], 500);
+        });
     }
 }

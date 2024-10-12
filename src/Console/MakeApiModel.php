@@ -20,7 +20,7 @@ class MakeApiModel extends Command
      *
      * @var string
      */
-    protected $description = 'Crea un modelo, migración, requests y un controlador dentro de la carpeta del modelo';
+    protected $description = 'Crea un modelo, migración, requests, controlador, policy, seeder, test y factory dentro de la carpeta del modelo';
 
     protected $filesystem;
 
@@ -51,8 +51,22 @@ class MakeApiModel extends Command
         $controllerPath = app_path("Http/Controllers/{$name}/{$name}Controller.php");
         $this->createController($name, $controllerPath);
 
-        $this->info("Modelo, Requests, Migración y Controlador de {$name} creados con éxito.");
+        // Crear policy
+        Artisan::call('make:policy', ['name' => "{$name}Policy", '--model' => "{$name}"]);
 
+        // Crear seeder
+        Artisan::call('make:seeder', ['name' => "{$name}Seeder"]);
+
+        // Crear factory
+        Artisan::call('make:factory', ['name' => "{$name}Factory", '--model' => "{$name}"]);
+
+        // Crear test
+        Artisan::call('make:test', ['name' => "{$name}Test"]);
+
+        // Llamar a install:api
+        Artisan::call('install:api');
+
+        $this->info("Modelo, Requests, Policy, Seeder, Factory, Test y Controlador de {$name} creados con éxito.");
     }
 
     /**
@@ -91,5 +105,4 @@ class {$name}Controller extends BaseApiController
         // Crear el archivo controlador
         $this->filesystem->put($controllerPath, $controllerContent);
     }
-
 }
