@@ -2,6 +2,11 @@
 namespace Fenox\ApiBase;
 
 use Fenox\ApiBase\Console\MakeApiModel;
+use Fenox\ApiBase\Exceptions\Handler;
+use Fenox\ApiBase\Middleware\ForceJsonResponse;
+use Illuminate\Contracts\Container\BindingResolutionException;
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Database\QueryException;
@@ -20,16 +25,22 @@ class BaseApiServiceProvider extends ServiceProvider
             ]);
         }
         // Registrar el middleware de JSON
-        $this->app['router']->aliasMiddleware('force.json', \Fenox\ApiBase\Middleware\ForceJsonResponse::class);
-
+        //$this->app['router']->aliasMiddleware('force.json', \Fenox\ApiBase\Middleware\ForceJsonResponse::class);
+        $kernel = $this->app->make(Kernel::class);
+        $kernel->pushMiddleware(ForceJsonResponse::class);
         // Registrar la lógica de excepciones
         $this->registerExceptionHandling();
+        $this->app->singleton(ExceptionHandler::class, Handler::class);
     }
 
+
     /**
-     * Registra la lógica de manejo de excepciones
+     *  Registra la lógica de manejo de excepciones
+     *
+     * @return void
+     * @throws BindingResolutionException
      */
-    protected function registerExceptionHandling()
+    protected function registerExceptionHandling(): void
     {
         $this->app->make('Illuminate\Contracts\Debug\ExceptionHandler')->renderable(function ($exception, Request $request) {
             // Manejo de errores
