@@ -8,6 +8,8 @@ use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Http\Request;
 use Throwable;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+
 
 class BaseApiServiceProvider extends ServiceProvider
 {
@@ -35,25 +37,36 @@ class BaseApiServiceProvider extends ServiceProvider
         $this->app->make('Illuminate\Contracts\Debug\ExceptionHandler')->renderable(function (Throwable $e, Request $request) {
             $statusCode = 500; // Código de estado por defecto
             $message = 'An unexpected error occurred. Please try again later.'; // Mensaje por defecto
-            $errors = [];
+
             // Manejo de excepciones personalizadas
-            if ($e instanceof \Illuminate\Auth\AuthenticationException) {
+            if ($e instanceof ModelNotFoundException) {
+                $model = class_basename($e->getModel());
+                $message = "{$model} not found.";
+                $statusCode = 404;
+            } elseif ($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
+                // dd($e);
+                if (str_contains($e->getMessage(), 'No query results for model') !== false) {
+                    return response()->json([
+                        'message' => 'The requested resource was not found.',
+                    ], 404);
+                }
+                $message = 'The requested URL was not found.';
+                $statusCode = 404;
+            } elseif ($e instanceof \Illuminate\Auth\AuthenticationException) {
                 $message = 'You need to log in to access this resource.';
                 $statusCode = 401;
             } elseif ($e instanceof \Illuminate\Auth\Access\AuthorizationException) {
                 $message = 'You do not have permission to perform this action.';
                 $statusCode = 403;
-            } elseif ($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
-                $message = 'The requested resource was not found.';
-                $statusCode = 404;
-            } elseif ($e instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
-                $message = 'The requested URL was not found.';
-                $statusCode = 404;
             } elseif ($e instanceof \Illuminate\Validation\ValidationException) {
-                
-                $errors = $e->$errors();
-                $message = $e->getMessage();
+                $errors = $e->errors();
+                $message = 'Validation failed';
                 $statusCode = 422;
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $message,
+                    'errors' => $errors,
+                ], $statusCode);
             } elseif ($e instanceof \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException) {
                 $message = 'The method is not allowed for this route.';
                 $statusCode = 405;
@@ -65,9 +78,9 @@ class BaseApiServiceProvider extends ServiceProvider
                 $statusCode = 400;
             }
 
-            // Retornar respuesta JSON
-            return response()->json(['message' => $message, "errors" => $errors], $statusCode);
+            return response()->json(['message' => $message], $statusCode);
         });
     }
+
 
 }
