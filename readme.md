@@ -4,11 +4,17 @@
 
 The API Base Package for Laravel simplifies API development by automating the creation of essential components such as models, migrations, controllers, requests, policies, seeders, factories, and tests. The package ensures all API responses are consistently returned in **JSON** format, making error handling and data interaction uniform across the application.
 
+---
+
 ## Requirements
 
 - **PHP**: ^8.3
 - **Laravel**: ^11.0
 - **Composer**: Ensure you have Composer installed and properly configured.
+
+---
+
+## Installation
 
 ### 1. Create a new Laravel project
 
@@ -32,6 +38,9 @@ Remember to manually run the following command to generate the API routes:
 ```bash
 php artisan install:api
 ```
+
+---
+
 ## Usage
 
 To quickly create a model, along with its migration, requests, controller, policy, seeder, factory, and test, use the `make:apimodel` command provided by the package.
@@ -83,6 +92,75 @@ public function rules(): array
     ];
 }
 ```
+
+### 5. Define your routes
+
+After creating the model, controller, and requests using the ```make:apimodel``` command, you need to define the routes in the ```routes/api.php``` file.
+
+### Example: Defining Routes for the Category API
+Add the following code to your ```routes/api.php``` file to set up the routes for the Category API:
+
+```php
+use App\Http\Controllers\Category\CategoryController;
+
+// Define API routes for categories
+Route::apiResource('categories', CategoryController::class);
+
+```
+### Explanation
+- ```apiResource```: This method creates the standard API routes for the resource, including:
+  - ```GET /api/categories```: Retrieve a list of categories.
+  - ```GET /api/categories/{id}```: Retrieve a specific category by its ID.
+  - ```POST /api/categories```: Create a new category.
+  - ```PUT /api/categories/{id}```: Update an existing category.
+  - ```DELETE /api/categories/{id}```: Delete a specific category.
+
+---
+
+## Controller Explanation
+
+The ```CategoryController``` is automatically generated when you run the ```make:apimodel Category``` command. This controller is located in the ```app/Http/Controllers/Category/``` directory.
+
+**Key Components**
+
+1. Model:
+
+   - The `````$model````` property is set to ```Category::class```, which indicates that this controller will manage instances of the ```Category``` model.
+
+2. Sorting
+    - The ```protected string $sortBy = 'name';``` line specifies that the default sorting for lists of categories will be by the ```name``` field. This can be changed to any other field you wish to sort by.
+
+3. Pagination
+    - The ```protected int $paginate = 10;``` line sets the number of results returned per page. If you prefer not to use pagination, set this value to ```0```.
+
+4. Request Validation
+    - The ```protected $storeRequest = StoreCategoryRequest::class;``` and ```protected $updateRequest = UpdateCategoryRequest::class;``` lines specify which request validation classes will be used for creating and updating categories, respectively. These can be modified to use different request classes if desired.
+
+## Example Usage
+
+To utilize the ```CategoryController```, ensure that the necessary routes are defined in your ```routes/api.php``` file:
+
+```php
+use App\Http\Controllers\Category\CategoryController;
+
+// Define API routes for categories
+Route::apiResource('categories', CategoryController::class);
+```
+## Customizing Pagination and Sorting
+
+- **Changing the Sort Field**: To sort by a different field, simply change the value of `````$sortBy`````. For example, to sort by ```created_at```, update it as follows:
+
+```php
+protected string $sortBy = 'created_at'; // Sort by created_at field
+
+```
+- **Disabling Pagination**: If you want to return all results without pagination, set the `````$paginate````` property to ```0```:
+```php
+protected int $paginate = 0; // Disable pagination
+
+```
+
+---
 
 ## Testing
 
