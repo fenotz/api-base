@@ -121,6 +121,26 @@ Route::apiResource('categories', CategoryController::class);
 
 The ```CategoryController``` is automatically generated when you run the ```make:apimodel Category``` command. This controller is located in the ```app/Http/Controllers/Category/``` directory.
 
+
+```php
+<?php
+
+namespace App\Http\Controllers\Category;
+
+use App\Http\Requests\Service\StoreCategoryRequest;
+use App\Http\Requests\Service\UpdateCategoryRequest;
+use App\Models\Category;
+use Fenox\ApiBase\Controllers\BaseApiController;
+
+class CategoryController extends BaseApiController
+{
+    protected $model = Category::class;
+    protected string $sortBy = 'name';
+    protected int $paginate = 10; // set to 0 if you don't want paginate
+    protected $storeRequest = StoreCategoryRequest::class;
+    protected $updateRequest = UpdateCategoryRequest::class;
+}
+```
 **Key Components**
 
 1. Model:
