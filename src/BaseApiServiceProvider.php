@@ -22,6 +22,11 @@ class BaseApiServiceProvider extends ServiceProvider
         $kernel = $this->app->make(Kernel::class);
         $kernel->pushMiddleware(ForceJsonResponse::class);
         $this->registerExceptionHandler();
+        $this->publishes([
+            __DIR__.'/../Requests/StoreUserRequest.php' => app_path('Http/Requests/FenoxApiRequests/User/StoreUserRequest.php'),
+            __DIR__.'/../Requests/UpdateUserRequest.php' => app_path('Http/Requests/FenoxApiRequests/User/UpdateUserRequest.php'),
+            __DIR__.'/../Controllers/AuthController.php' => app_path('Http/Controllers/FenoxApi/AuthController.php'),
+        ], 'fenox-api-auth'); // Un solo tag para todas las publicaciones
     }
 
     protected function registerExceptionHandler(): void

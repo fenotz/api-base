@@ -45,16 +45,16 @@ class MakeApiModel extends Command
 
             // Crear StoreRequest
             $this->info("Generating StoreRequest for {$name}...");
-            Artisan::call('make:request', ['name' => "{$name}/Store{$name}Request"]);
+            Artisan::call('make:request', ['name' => "FenoxApiRequests/{$name}/Store{$name}Request"]);
             $this->info("StoreRequest for {$name} created successfully.");
 
             // Crear UpdateRequest
             $this->info("Generating UpdateRequest for {$name}...");
-            Artisan::call('make:request', ['name' => "{$name}/Update{$name}Request"]);
+            Artisan::call('make:request', ['name' => "FenoxApiRequests/{$name}/Update{$name}Request"]);
             $this->info("UpdateRequest for {$name} created successfully.");
 
             // Crear el controlador extendiendo el BaseApiController
-            $controllerPath = app_path("Http/Controllers/{$name}/{$name}Controller.php");
+            $controllerPath = app_path("Http/Controllers/FenoxApiControllers/{$name}Controller.php");
             $this->info("Generating controller for {$name}...");
             $this->createController($name, $controllerPath);
             $this->info("Controller for {$name} created successfully.");
