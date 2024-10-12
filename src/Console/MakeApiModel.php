@@ -24,7 +24,6 @@ class MakeApiModel extends Command
 
     protected Filesystem $filesystem;
 
-
     public function __construct(Filesystem $filesystem)
     {
         parent::__construct();
@@ -39,39 +38,56 @@ class MakeApiModel extends Command
         try {
             $name = $this->argument('name');
 
-            // Crear el modelo con migración
+            // Generar el modelo con migración
+            $this->info("Generating model and migration for {$name}...");
             Artisan::call('make:model', ['name' => "{$name}", '--migration' => true]);
+            $this->info("Model and migration for {$name} created successfully.");
 
             // Crear StoreRequest
+            $this->info("Generating StoreRequest for {$name}...");
             Artisan::call('make:request', ['name' => "{$name}/Store{$name}Request"]);
+            $this->info("StoreRequest for {$name} created successfully.");
 
             // Crear UpdateRequest
+            $this->info("Generating UpdateRequest for {$name}...");
             Artisan::call('make:request', ['name' => "{$name}/Update{$name}Request"]);
+            $this->info("UpdateRequest for {$name} created successfully.");
 
             // Crear el controlador extendiendo el BaseApiController
             $controllerPath = app_path("Http/Controllers/{$name}/{$name}Controller.php");
+            $this->info("Generating controller for {$name}...");
             $this->createController($name, $controllerPath);
+            $this->info("Controller for {$name} created successfully.");
 
             // Crear policy
+            $this->info("Generating policy for {$name}...");
             Artisan::call('make:policy', ['name' => "{$name}Policy", '--model' => "{$name}"]);
+            $this->info("Policy for {$name} created successfully.");
 
             // Crear seeder
+            $this->info("Generating seeder for {$name}...");
             Artisan::call('make:seeder', ['name' => "{$name}Seeder"]);
+            $this->info("Seeder for {$name} created successfully.");
 
             // Crear factory
+            $this->info("Generating factory for {$name}...");
             Artisan::call('make:factory', ['name' => "{$name}Factory", '--model' => "{$name}"]);
+            $this->info("Factory for {$name} created successfully.");
 
             // Crear test
+            $this->info("Generating test for {$name}...");
             Artisan::call('make:test', ['name' => "{$name}Test"]);
+            $this->info("Test for {$name} created successfully.");
 
             // Llamar a install:api
+            $this->info("Generating API routes...");
             Artisan::call('install:api');
+            $this->info("API routes generated successfully.");
 
-            $this->info("Modelo, Requests, Policy, Seeder, Factory, Test y Controlador de {$name} creados con éxito.");
+            $this->info("All components for {$name} have been created successfully.");
         } catch (\Exception $e) {
             $this->error('An error occurred: ' . $e->getMessage());
         }
-
     }
 
     /**
