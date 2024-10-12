@@ -79,11 +79,6 @@ class MakeApiModel extends Command
             Artisan::call('make:test', ['name' => "{$name}Test"]);
             $this->info("Test for {$name} created successfully.");
 
-            // Llamar a install:api
-            $this->info("Generating API routes...");
-            Artisan::call('install:api');
-            $this->info("API routes generated successfully.");
-
             $this->info("All components for {$name} have been created successfully.");
         } catch (\Exception $e) {
             $this->error('An error occurred: ' . $e->getMessage());

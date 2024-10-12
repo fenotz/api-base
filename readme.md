@@ -27,8 +27,11 @@ composer require fenox/api-base
 
 ### 3. Generate the API routes
 
-The package automatically configures your API routes upon installation, so no additional command is necessary. The `routes/api.php` file will be set up and ready for handling API requests after running the `composer require` command.
+Remember to manually run the following command to generate the API routes:
 
+```bash
+php artisan install:api
+```
 ## Usage
 
 To quickly create a model, along with its migration, requests, controller, policy, seeder, factory, and test, use the `make:apimodel` command provided by the package.
@@ -105,13 +108,120 @@ php artisan make:apimodel Category
 
 A test file named ```CategoryTest.php``` will be automatically created in the ```tests/Feature/``` directory.
 
-This test file will contain basic tests for the CRUD operations of the ```Category``` API, including creating, reading, updating, and deleting categories.
+You will need to modify the generated ```CategoryTest.php``` file to include tests for CRUD operations, validation, and any other business logic you want to validate. Below is an example of how you might implement the test file to include basic tests for creating, reading, updating, and deleting categories:
 
-You can add more test cases as needed to verify that all routes function correctly, including handling various validation scenarios and edge cases.
+```php
+namespace Tests\Feature;
 
-By running the tests, you ensure that your API behaves as expected and is ready for production use.
+use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\Category;
 
+class CategoryTest extends TestCase
+{
+    use RefreshDatabase;
 
+    /** @test */
+    public function it_can_create_a_category()
+    {
+        $response = $this->postJson('/api/categories', [
+            'name' => 'Test Category',
+            'description' => 'A description for the test category.'
+        ]);
+
+        $response->assertStatus(201)
+                 ->assertJson(['message' => 'Record created successfully']);
+
+        $this->assertDatabaseHas('categories', [
+            'name' => 'Test Category',
+            'description' => 'A description for the test category.'
+        ]);
+    }
+
+    /** @test */
+    public function it_can_list_categories()
+    {
+        $category = Category::create([
+            'name' => 'Test Category',
+            'description' => 'A description for the test category.'
+        ]);
+
+        $response = $this->getJson('/api/categories');
+
+        $response->assertStatus(200)
+                 ->assertJsonFragment(['name' => 'Test Category']);
+    }
+
+    /** @test */
+    public function it_can_update_a_category()
+    {
+        $category = Category::create([
+            'name' => 'Old Category',
+            'description' => 'Old description.'
+        ]);
+
+        $response = $this->putJson("/api/categories/{$category->id}", [
+            'name' => 'Updated Category',
+            'description' => 'Updated description.'
+        ]);
+
+        $response->assertStatus(200)
+                 ->assertJson(['message' => 'Record updated successfully']);
+
+        $this->assertDatabaseHas('categories', [
+            'id' => $category->id,
+            'name' => 'Updated Category',
+            'description' => 'Updated description.'
+        ]);
+    }
+
+    /** @test */
+    public function it_can_delete_a_category()
+    {
+        $category = Category::create([
+            'name' => 'Category to Delete',
+            'description' => 'This category will be deleted.'
+        ]);
+
+        $response = $this->deleteJson("/api/categories/{$category->id}");
+
+        $response->assertStatus(200)
+                 ->assertJson(['message' => 'Record deleted successfully']);
+
+        $this->assertDeleted($category);
+    }
+
+    /** @test */
+    public function it_validates_name_field_when_creating()
+    {
+        $response = $this->postJson('/api/categories', [
+            'description' => 'A description without a name.'
+        ]);
+
+        $response->assertStatus(422)
+                 ->assertJsonValidationErrors(['name']);
+    }
+
+    /** @test */
+    public function it_validates_name_field_when_updating()
+    {
+        $category = Category::create([
+            'name' => 'Valid Category',
+            'description' => 'A valid description.'
+        ]);
+
+        $response = $this->putJson("/api/categories/{$category->id}", [
+            'description' => 'Updated description without a name.'
+        ]);
+
+        $response->assertStatus(422)
+                 ->assertJsonValidationErrors(['name']);
+    }
+}
+```
+**Adding More Tests**
+
+You can add more test cases as needed to verify that all routes function correctly, including handling various validation scenarios and edge cases. By running the tests, you ensure that your API behaves as expected and is ready for production use.
 ## Error Handling
 
 This package includes built-in error handling to ensure that all exceptions and validation errors are returned in **JSON** format. Common errors like `404 Not Found`, `401 Unauthenticated`, `403 Forbidden`, and `422 Validation Error` are handled with the appropriate HTTP status codes.

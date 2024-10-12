@@ -1,7 +1,7 @@
 {
   "name": "fenox/api-base",
   "description": "Paquete para manejar base de APIs en Laravel",
-  "version": "1.1.21",
+  "version": "1.1.22",
   "license": "MIT",
   "autoload": {
     "psr-4": {
@@ -18,10 +18,5 @@
         "Fenox\\ApiBase\\BaseApiServiceProvider"
       ]
     }
-  },
-  "scripts": {
-    "post-install-cmd": [
-      "@php artisan install:api"
-    ]
   }
 }
