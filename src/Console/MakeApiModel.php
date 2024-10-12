@@ -54,7 +54,7 @@ class MakeApiModel extends Command
             $this->info("UpdateRequest for {$name} created successfully.");
 
             // Crear el controlador extendiendo el BaseApiController
-            $controllerPath = app_path("Http/Controllers/FenoxApiControllers/{$name}Controller.php");
+            $controllerPath = app_path("Http/Controllers/FenoxApiControllers/{$name}/{$name}Controller.php");
             $this->info("Generating controller for {$name}...");
             $this->createController($name, $controllerPath);
             $this->info("Controller for {$name} created successfully.");
@@ -101,10 +101,10 @@ class MakeApiModel extends Command
         // Contenido del controlador
         $controllerContent = "<?php
 
-namespace App\Http\Controllers\\{$name};
+namespace App\Http\Controllers\FenoxApiControllers\\{$name};
 
-use App\Http\Requests\\{$name}\\Store{$name}Request;
-use App\Http\Requests\\{$name}\\Update{$name}Request;
+use App\Http\Requests\FenoxApiRequests\\{$name}\\Store{$name}Request;
+use App\Http\Requests\FenoxApiRequests\\{$name}\\Update{$name}Request;
 use App\Models\\{$name};
 use Fenox\ApiBase\Controllers\BaseApiController;
 

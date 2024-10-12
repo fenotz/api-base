@@ -23,9 +23,10 @@ class BaseApiServiceProvider extends ServiceProvider
         $kernel->pushMiddleware(ForceJsonResponse::class);
         $this->registerExceptionHandler();
         $this->publishes([
-            __DIR__.'/../Requests/StoreUserRequest.php' => app_path('Http/Requests/FenoxApiRequests/User/StoreUserRequest.php'),
-            __DIR__.'/../Requests/UpdateUserRequest.php' => app_path('Http/Requests/FenoxApiRequests/User/UpdateUserRequest.php'),
-            __DIR__.'/../Controllers/AuthController.php' => app_path('Http/Controllers/FenoxApi/AuthController.php'),
+            __DIR__.'/Requests/LoginRequest.php' => app_path('Http/Requests/FenoxApiRequests/User/LoginRequest.php'),
+            __DIR__.'/Requests/StoreUserRequest.php' => app_path('Http/Requests/FenoxApiRequests/User/StoreUserRequest.php'),
+            __DIR__.'/Requests/UpdateUserRequest.php' => app_path('Http/Requests/FenoxApiRequests/User/UpdateUserRequest.php'),
+            __DIR__.'/Controllers/AuthController.php' => app_path('Http/Controllers/FenoxApiControllers/AuthController.php'),
         ], 'fenox-api-auth'); // Un solo tag para todas las publicaciones
     }
 
@@ -34,7 +35,7 @@ class BaseApiServiceProvider extends ServiceProvider
         $this->app->make('Illuminate\Contracts\Debug\ExceptionHandler')->renderable(function (Throwable $e, Request $request) {
             $statusCode = 500; // Código de estado por defecto
             $message = 'An unexpected error occurred. Please try again later.'; // Mensaje por defecto
-
+            $errors = [];
             // Manejo de excepciones personalizadas
             if ($e instanceof \Illuminate\Auth\AuthenticationException) {
                 $message = 'You need to log in to access this resource.';
@@ -49,7 +50,9 @@ class BaseApiServiceProvider extends ServiceProvider
                 $message = 'The requested URL was not found.';
                 $statusCode = 404;
             } elseif ($e instanceof \Illuminate\Validation\ValidationException) {
-                $message = 'There were validation errors. Please check your input.';
+                
+                $errors = $e->$errors();
+                $message = $e->getMessage();
                 $statusCode = 422;
             } elseif ($e instanceof \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException) {
                 $message = 'The method is not allowed for this route.';
@@ -63,7 +66,7 @@ class BaseApiServiceProvider extends ServiceProvider
             }
 
             // Retornar respuesta JSON
-            return response()->json(['message' => $message], $statusCode);
+            return response()->json(['message' => $message, "errors" => $errors], $statusCode);
         });
     }
 

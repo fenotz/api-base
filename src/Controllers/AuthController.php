@@ -1,14 +1,15 @@
 <?php
+namespace App\Http\Controllers\FenoxApiControllers;
 
-
-use App\Http\Requests\FenoxApi\User\StoreUserRequest;
-use App\Http\Requests\FenoxApi\User\UpdateUserRequest;
+use App\Http\Requests\FenoxApiRequests\User\StoreUserRequest;
+use App\Http\Requests\FenoxApiRequests\User\UpdateUserRequest;
 use App\Models\User;
 use Fenox\ApiBase\Helpers\ResponseHelper;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Hash;
 
-class AuthController extends BaseApiController
+class AuthController extends Controller
 {
     public function register(StoreUserRequest $request): JsonResponse
     {
