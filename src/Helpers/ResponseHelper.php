@@ -2,6 +2,7 @@
 
 namespace Fenox\ApiBase\Helpers;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -14,7 +15,7 @@ class ResponseHelper
      * @param int $statusCode
      * @return JsonResponse
      */
-    public static function success(array|Model|LengthAwarePaginator $data = [], string $message = 'Success', int $statusCode = 200): JsonResponse
+    public static function success(array|Model|LengthAwarePaginator|Collection $data = [], string $message = 'Success', int $statusCode = 200): JsonResponse
     {
 
         return response()->json([
