@@ -3,19 +3,20 @@
 namespace Fenox\ApiBase\Controllers;
 
 use Fenox\ApiBase\Helpers\ResponseHelper;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
 class BaseApiController extends Controller
 {
-    protected $model;
+    protected Model $model;
     protected string $sortBy = 'id'; // Por defecto, si no se define en el controlador hijo
     protected int $paginate = 15; // Valor por defecto para la paginación
-    protected $storeRequest;
-    protected $updateRequest;
+    protected Request $storeRequest;
+    protected Request $updateRequest;
 
-    protected $sortDirection = "ASC";
+    protected string $sortDirection = "ASC";
 
 
     /**
