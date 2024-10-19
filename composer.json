@@ -1,7 +1,7 @@
 {
   "name": "fenox/laravel-api-json",
   "description": "A Laravel package that simplifies API development by automating CRUD operations, ensures consistent JSON error handling, and streamlines the creation of essential components for RESTful APIs.",
-  "version": "2.1.2",
+  "version": "2.1.21",
   "license": "MIT",
   "autoload": {
     "psr-4": {
