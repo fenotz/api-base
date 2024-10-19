@@ -66,10 +66,17 @@ class AuthController extends Controller
      */
     public function update(UpdateUserRequest $request): JsonResponse
     {
-
-        //dd($request);
         $user = Auth::user();
         $user->update($request->validated());
         return ResponseHelper::success($user, 'User updated successfully');
+    }
+
+    /**
+     * @return JsonResponse
+     */
+    public function me(): JsonResponse
+    {
+        $user = Auth::user();
+        return ResponseHelper::success($user, 'User retrieved Successfully!');
     }
 }
