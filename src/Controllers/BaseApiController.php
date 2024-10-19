@@ -15,6 +15,8 @@ class BaseApiController extends Controller
     protected $storeRequest;
     protected $updateRequest;
 
+    protected $sortDirection = "ASC";
+
 
     /**
      * @return JsonResponse
@@ -22,10 +24,10 @@ class BaseApiController extends Controller
     public function index(): JsonResponse
     {
         if ($this->paginate > 0) {
-            $results = $this->model::orderBy($this->sortBy)
+            $results = $this->model::orderBy($this->sortBy, $this->sortDirection)
                 ->paginate($this->paginate);
         } else {
-            $results = $this->model::orderBy($this->sortBy)
+            $results = $this->model::orderBy($this->sortBy, $this->sortDirection)
                 ->get();  // Obtener todos los registros sin paginación
         }
         return ResponseHelper::success($results, 'List retrieved successfully');

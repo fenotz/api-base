@@ -77,8 +77,7 @@ The API Base Package simplifies the process of creating and managing API endpoin
    ```bash
    php artisan make:apimodel Category
    ```
-   2. **Modify the Migration File:** After generating the model and migration, navigate to the migration file in ```database/migrations/``` to add the necessary fields for your database schema. For instance, if you're adding ```name``` and ```description``` fields, your migration might look like this:
-
+2. **Modify the Migration File:** After generating the model and migration, navigate to the migration file in ```database/migrations/``` to add the necessary fields for your database schema. For instance, if you're adding ```name``` and ```description``` fields, your migration might look like this:
    ```php
       public function up()
       {
@@ -89,31 +88,39 @@ The API Base Package simplifies the process of creating and managing API endpoin
          $table->timestamps();
          });
       }
-
    ```
-   3. **Add `````$fillable````` Fields to the Model**: In your model file located at ```app/Models/Category.php```, ensure you add the necessary fields to the ```$fillable``` property to allow mass assignment:
-      ```php
-      protected $fillable = ['name', 'description']; // Example fields
+3. **Add `````$fillable````` Fields to the Model**: In your model file located at ```app/Models/Category.php```, ensure you add the necessary fields to the ```$fillable``` property to allow mass assignment:
+   ```php
+   protected $fillable = ['name', 'description']; // Example fields
+   ```
+4. **Define Validation Rules in Requests:** In the generated ```StoreCategoryRequest``` and ```UpdateCategoryRequest``` files located in ```app/Http/Requests/Category/```, set your validation rules. If a field is optional, use ```nullable``` or ```sometimes```:
+   ```php
+   public function rules(): array
+   {
+      return [
+         'name' => 'required|string|max:255',
+         'description' => 'nullable|string',
+      ];
+   }
+   ```
+5. **Setup Routes**: 
+Ensure your API routes are configured properly in ```routes/api.php```. The generated routes will typically look like this:
+
+   ```php
+   Route::apiResource('categories', CategoryController::class);
+   ```
+
+   By following these steps, you can quickly set up a functional CRUD API for the Category model, ready for further customization and use.
+
+   Remember use:
+      ```bash
+         php artisan migrate 
       ```
-   4. **Define Validation Rules in Requests:** In the generated ```StoreCategoryRequest``` and ```UpdateCategoryRequest``` files located in ```app/Http/Requests/Category/```, set your validation rules. If a field is optional, use ```nullable``` or ```sometimes```:
-   
-```php
-public function rules(): array
-{
-   return [
-      'name' => 'required|string|max:255',
-      'description' => 'nullable|string',
-   ];
-}
-```
+   & run:
 
-5. **Setup Routes**: Ensure your API routes are configured properly in ```routes/api.php```. The generated routes will typically look like this:
-
-```php
-Route::apiResource('categories', CategoryController::class);
-```
-
-By following these steps, you can quickly set up a functional CRUD API for the Category model, ready for further customization and use.
+   ```bash
+      php artisan serve
+   ```
 
 ---
 
@@ -128,23 +135,22 @@ his package integrates Laravel Sanctum to provide simple and robust API token au
    php artisan vendor:publish --tag=fenox-api-auth
    ```
 2. **Modify the User Model:** Ensure that your ```User``` model (located at ```app/Models/User.php```) uses the ```HasApiTokens``` trait. This allows the model to generate API tokens for authentication:
-```php
-use Laravel\Sanctum\HasApiTokens;
-
-class User extends Authenticatable
-{
-    use HasApiTokens, Notifiable;
-    // Other model properties and methods...
-}
-
-```
+   ```php
+   use Laravel\Sanctum\HasApiTokens;
+   
+   class User extends Authenticatable
+   {
+       use HasApiTokens, Notifiable;
+       // Other model properties and methods...
+   }
+   ```
 3. **Setup Routes:**The package will generate the necessary authentication routes automatically. You should add the following routes to your ```routes/api.php``` file to enable login and logout functionality:
-```php
-Route::post('register', [AuthController::class, 'register']);
-Route::post('login', [AuthController::class, 'login']);
-Route::post('logout', [AuthController::class, 'logout'])->middleware("auth:sanctum");
-Route::post('update', [AuthController::class, 'update'])->middleware("auth:sanctum");
-```
+   ```php
+   Route::post('register', [AuthController::class, 'register']);
+   Route::post('login', [AuthController::class, 'login']);
+   Route::post('logout', [AuthController::class, 'logout'])->middleware("auth:sanctum");
+   Route::post('update', [AuthController::class, 'update'])->middleware("auth:sanctum");
+   ```
 ---
 
 ## Error Handling
@@ -167,35 +173,35 @@ The following are the common error responses that the package handles:
    }
    ```
 2. Unauthenticated (401): Returned when a user attempts to access a protected resource without proper authentication.
-```json
-{
-    "message": "You do not have permission to perform this action."
-}
-```
+   ```json
+   {
+       "message": "You do not have permission to perform this action."
+   }
+   ```
 3. Forbidden (403): Returned when an authenticated user does not have permission to perform a specific action.
-```json
-{
-    "message": "You do not have permission to perform this action."
-}
-```
+   ```json
+   {
+       "message": "You do not have permission to perform this action."
+   }
+   ```
 4. Resource Not Found (404): Returned when a requested resource or route is not found.
-```json
-{
-    "message": "The requested resource was not found."
-}
-```
+   ```json
+   {
+       "message": "The requested resource was not found."
+   }
+   ```
 5. Method Not Allowed (405): Returned when the HTTP method used for a request is not allowed for the specified route.
-```json
-{
-    "message": "The method is not allowed for this route."
-}
-```
+   ```json
+   {
+       "message": "The method is not allowed for this route."
+   }
+   ```
 6. Server Error (500): Returned for any unexpected server errors.
-```json
-{
-    "message": "An unexpected error occurred. Please try again later."
-}
-```
+   ```json
+   {
+       "message": "An unexpected error occurred. Please try again later."
+   }
+   ```
 ---
 
 ## Advanced Configuration
@@ -204,55 +210,52 @@ This package provides a base structure for API development, but it can also be c
 
 1. **Customizing Controllers**
  
-By default, the generated controllers extend the ```BaseApiController``` provided by this package. You can customize these controllers by overriding methods like ```index```, ```store```, ```update```, and more to add additional logic or behavior.
+   By default, the generated controllers extend the ```BaseApiController``` provided by this package. You can customize these controllers by overriding methods like ```index```, ```store```, ```update```, and more to add additional logic or behavior.
+   
+   Example: Modifying the ```CategoryController```
 
-Example: Modifying the ```CategoryController```
-
-```php
-use Fenox\ApiBase\Helpers\ResponseHelper; // Ensure you import the ResponseHelper from the package
-
-public function index(): JsonResponse
-{
-    $query = $this->model::query();
-
-    if (request()->has('filter')) {
-        $query->where('name', 'like', '%' . request('filter') . '%');
-    }
-
-    $results = $query->orderBy($this->sortBy)
-        ->paginate($this->paginate);
-
-    return ResponseHelper::success($results, 'Filtered list retrieved successfully', 200);
-}
-```
-
+   ```php
+   use Fenox\ApiBase\Helpers\ResponseHelper; // Ensure you import the ResponseHelper from the package
+   
+   public function index(): JsonResponse
+   {
+       $query = $this->model::query();
+   
+       if (request()->has('filter')) {
+           $query->where('name', 'like', '%' . request('filter') . '%');
+       }
+   
+       $results = $query->orderBy($this->sortBy)
+           ->paginate($this->paginate);
+   
+       return ResponseHelper::success($results, 'Filtered list retrieved successfully', 200);
+   }
+   ```
 2. **Adding New Functionality**
 
-You are free to extend this package by adding new commands, controllers, or services specific to your API structure.
-
-**Example: Adding a Custom Base Controller**
-
-You can extend the ```BaseApiController``` to create new functionalities shared across your API controllers. For example, you could add new methods or modify existing ones.
-
-```php
-namespace App\Http\Controllers;
-
-use Fenox\ApiBase\Controllers\BaseApiController;
-
-class CustomApiController extends BaseApiController
-{
-    public function customMethod()
-    {
-        // Custom logic that applies to all your API controllers
-    }
-}
-```
-
+   You are free to extend this package by adding new commands, controllers, or services specific to your API structure.
+   
+   **Example: Adding a Custom Base Controller**
+   
+   You can extend the ```BaseApiController``` to create new functionalities shared across your API controllers. For example, you could add new methods or modify existing ones.
+   
+   ```php
+   namespace App\Http\Controllers;
+   
+   use Fenox\ApiBase\Controllers\BaseApiController;
+   
+   class CustomApiController extends BaseApiController
+   {
+       public function customMethod()
+       {
+           // Custom logic that applies to all your API controllers
+       }
+   }
+   ```
 ---
 
 ## Contributing
 We would be delighted to receive contributions to improve this package and its functionality. If you find any bugs or have suggestions for new features, please report them by opening an issue on our GitHub repository. Your feedback and contributions are invaluable to us!
-
 
 ---
 

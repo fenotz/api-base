@@ -112,6 +112,7 @@ class {$name}Controller extends BaseApiController
 {
     protected \$model = {$name}::class;
     protected string \$sortBy = 'name';
+    protected string \$sortDirection = 'ASC'; // set ASC or DESC for sort Direction
     protected int \$paginate = 10; // set to 0 if you don't want paginate
     protected \$storeRequest = Store{$name}Request::class;
     protected \$updateRequest = Update{$name}Request::class;
