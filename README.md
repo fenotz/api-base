@@ -52,7 +52,7 @@ To get started with the API Base Package for Laravel, follow these steps:
    ```
 3. **Install the API Base Package:** Use Composer to require the package:
    ```bash
-   composer require fenox/api-base
+   composer require fenox/laravel-api-json
    ```
 4. **Publish the authentication resources:** After installing the package, publish the authentication-related resources:
    ```bash
