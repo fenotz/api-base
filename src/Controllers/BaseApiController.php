@@ -10,11 +10,11 @@ use Illuminate\Routing\Controller;
 
 class BaseApiController extends Controller
 {
-    protected Model $model;
+    protected $model;
     protected string $sortBy = 'id'; // Por defecto, si no se define en el controlador hijo
     protected int $paginate = 15; // Valor por defecto para la paginación
-    protected Request $storeRequest;
-    protected Request $updateRequest;
+    protected $storeRequest;
+    protected $updateRequest;
 
     protected string $sortDirection = "ASC";
 
